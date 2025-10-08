@@ -5,10 +5,12 @@
  * For more details take a look at the 'Building Java & JVM projects' chapter in the Gradle
  * User Manual available at https://docs.gradle.org/7.2/userguide/building_java_projects.html
  */
+version = "0.1.0"
 
 plugins {
-    // Apply the application plugin to add support for building a CLI application in Java.
+    id("org.springframework.boot") version "3.2.6"
     application
+    java
 }
 
 repositories {
@@ -29,6 +31,18 @@ application {
     mainClass.set("proxy.ProxyServiceApplication")
 }
 
+java {
+    withSourcesJar()
+}
+
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.jar {
+    manifest {
+        attributes(mapOf("Implementation-Title" to project.name,
+            "Implementation-Version" to project.version,
+            "Main-Class" to "proxy.ProxyServiceApplication"))
+    }
 }
