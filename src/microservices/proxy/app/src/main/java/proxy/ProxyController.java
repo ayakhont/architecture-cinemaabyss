@@ -1,0 +1,44 @@
+package proxy;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+import java.util.Random;
+
+@RestController
+@RequestMapping("/api")
+public class ProxyController {
+
+    @Value("${MONOLITH_URL}")
+    private String monolithUrl;
+
+    @Value("${MOVIES_SERVICE_URL}")
+    private String moviesServiceUrl;
+
+    @Value("${GRADUAL_MIGRATION:true}")
+    private boolean gradualMigration;
+
+    @Value("${MOVIES_MIGRATION_PERCENT:50}")
+    private int migrationPercent;
+
+    private final WebClient webClient = WebClient.create();
+    private final Random random = new Random();
+
+    @GetMapping("/movies")
+    public Mono<ResponseEntity<String>> proxyMovies() {
+        String targetUrl = monolithUrl + "/api/movies";
+        if (gradualMigration) {
+            int rand = random.nextInt(100);
+            if (rand < migrationPercent) {
+                targetUrl = moviesServiceUrl + "/api/movies";
+            }
+        }
+        return webClient.get()
+                .uri(targetUrl)
+                .retrieve()
+                .toEntity(String.class);
+    }
+}
