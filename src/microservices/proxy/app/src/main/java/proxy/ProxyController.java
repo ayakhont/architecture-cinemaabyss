@@ -27,6 +27,15 @@ public class ProxyController {
     private final WebClient webClient = WebClient.create();
     private final Random random = new Random();
 
+    @GetMapping("/movies/health")
+    public Mono<ResponseEntity<String>> healthMoviesCheck() {
+        String targetUrl = moviesServiceUrl + "/api/movies/health";
+        return webClient.get()
+                .uri(targetUrl)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
     @GetMapping("/movies")
     public Mono<ResponseEntity<String>> proxyMovies() {
         String targetUrl = monolithUrl + "/api/movies";
@@ -38,6 +47,22 @@ public class ProxyController {
         }
         return webClient.get()
                 .uri(targetUrl)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
+    @PostMapping("/movies")
+    public Mono<ResponseEntity<String>> proxyMoviesPost(@RequestBody String body) {
+        String targetUrl = monolithUrl + "/api/movies";
+        if (gradualMigration) {
+            int rand = random.nextInt(100);
+            if (rand < migrationPercent) {
+                targetUrl = moviesServiceUrl + "/api/movies";
+            }
+        }
+        return webClient.post()
+                .uri(targetUrl)
+                .bodyValue(body)
                 .retrieve()
                 .toEntity(String.class);
     }

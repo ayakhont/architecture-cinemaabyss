@@ -6,14 +6,11 @@ COPY settings.gradle.kts gradlew ./
 COPY gradle gradle/
 COPY app app/
 
-RUN pwd
-RUN ls -la
-
-RUN ./gradlew :app:build
+RUN ./gradlew :app:build --no-daemon -x test
 
 FROM openjdk:21-jdk-slim
 
-COPY app/build/libs/app-0.1.0.jar proxy-service.jar
+COPY --from=0 /app/app/build/libs/app-0.1.0.jar /proxy-service.jar
 
 EXPOSE 8000
 ENV PORT=8000
