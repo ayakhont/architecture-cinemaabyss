@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class EventConsumer:
-    def __init__(self, bootstrap_servers='localhost:9092', group_id='event-consumers'):
+    def __init__(self, bootstrap_servers='kafka:9092', group_id='event-consumers'):
         self.consumer = KafkaConsumer(
             bootstrap_servers=bootstrap_servers,
             group_id=group_id,
@@ -34,8 +34,6 @@ class EventConsumer:
                     for message in msgs:
                         logger.info(f"Received event from {message.topic}: "
                                     f"key={message.key} value={message.value} offset={message.offset}")
-                        # Process the event here
-                self.consumer.commit()
             except KafkaError as e:
                 logger.error(f"Error consuming events: {e}")
                 logger.error(traceback.format_exc())

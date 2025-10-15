@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class EventProducer:
-    def __init__(self, bootstrap_servers='localhost:9092'):
+    def __init__(self, bootstrap_servers='kafka:9092'):
         self.producer = KafkaProducer(
             bootstrap_servers=bootstrap_servers,
             key_serializer=lambda k: json.dumps(k).encode('utf-8'),
