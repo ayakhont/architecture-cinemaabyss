@@ -1,3 +1,4 @@
+import os
 import traceback
 
 from kafka import KafkaConsumer
@@ -9,13 +10,30 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+KAFKA_BOOTSTRAP_SERVER = os.getenv('KAFKA_BROKERS', 'kafka:9092')
+MOVIE_TOPIC = "movie-events"
+USER_TOPIC = "user-events"
+PAYMENT_TOPIC = "payment-events"
+
+def run_consumer():
+    consumer = EventConsumer()
+    consumer.subscribe([MOVIE_TOPIC, USER_TOPIC, PAYMENT_TOPIC])
+    consumer.consume_events()
+
+def deserialize(data):
+    try:
+        return json.loads(data.decode('utf-8'))
+    except (json.JSONDecodeError, AttributeError) as e:
+        logger.error(f"Deserialization error: {e}")
+        return None
+
 class EventConsumer:
-    def __init__(self, bootstrap_servers='kafka:9092', group_id='event-consumers'):
+    def __init__(self, bootstrap_servers=KAFKA_BOOTSTRAP_SERVER, group_id='event-consumers'):
         self.consumer = KafkaConsumer(
             bootstrap_servers=bootstrap_servers,
             group_id=group_id,
-            key_deserializer=lambda k: json.loads(k.decode('utf-8')),
-            value_deserializer=lambda v: json.loads(v.decode('utf-8')),
+            key_deserializer=deserialize,
+            value_deserializer=deserialize,
             auto_offset_reset='earliest',
             enable_auto_commit=True
         )
@@ -28,7 +46,6 @@ class EventConsumer:
         while True:
             try:
                 messages = self.consumer.poll(timeout_ms=1000)
-                logger.info("Polling for events...")
                 for tp, msgs in messages.items():
                     logger.info(f"Received {len(msgs)} messages from topic partition {tp}")
                     for message in msgs:

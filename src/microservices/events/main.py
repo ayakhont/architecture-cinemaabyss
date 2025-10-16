@@ -1,3 +1,4 @@
+from time import sleep
 from typing import Optional
 
 from fastapi import FastAPI
@@ -9,7 +10,7 @@ from multiprocessing import Process
 from models import MovieEventRequest, UserEventRequest, PaymentEventRequest
 
 from producer import EventProducer
-from consumer import EventConsumer
+from consumer import run_consumer
 
 MOVIE_TOPIC = "movie-events"
 USER_TOPIC = "user-events"
@@ -21,12 +22,11 @@ event_producer: Optional[EventProducer] = None
 async def lifespan(app):
     print("Startup event producer...")
     global event_producer
+    sleep(3.0) # Wait for Kafka to be ready
     event_producer = EventProducer()
     print("Starting background consumer processes...")
-    consumer1 = EventConsumer()
-    consumer2 = EventConsumer()
-    process1 = Process(target=consumer1.consume_events, daemon=True)
-    process2 = Process(target=consumer2.consume_events, daemon=True)
+    process1 = Process(target=run_consumer, daemon=True)
+    process2 = Process(target=run_consumer, daemon=True)
     process1.start()
     process2.start()
     print("Background consumer processes started.")

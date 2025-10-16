@@ -1,3 +1,5 @@
+import os
+
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
 
@@ -7,12 +9,22 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+KAFKA_BOOTSTRAP_SERVER = os.getenv('KAFKA_BROKERS', 'kafka:9092')
+
+def deserialize(data):
+    try:
+        return json.loads(data.decode('utf-8'))
+    except (json.JSONDecodeError, AttributeError) as e:
+        logger.error(f"Deserialization error: {e}")
+        return None
+
+
 class EventProducer:
-    def __init__(self, bootstrap_servers='kafka:9092'):
+    def __init__(self, bootstrap_servers=KAFKA_BOOTSTRAP_SERVER):
         self.producer = KafkaProducer(
             bootstrap_servers=bootstrap_servers,
-            key_serializer=lambda k: json.dumps(k).encode('utf-8'),
-            value_serializer=lambda v: json.dumps(v).encode('utf-8')
+            key_serializer=deserialize,
+            value_serializer=deserialize
         )
 
     def send_event(self, topic, event):
