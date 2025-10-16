@@ -24,6 +24,9 @@ public class ProxyController {
     @Value("${MOVIES_MIGRATION_PERCENT:50}")
     private int migrationPercent;
 
+    @Value("${EVENTS_SERVICE_URL}")
+    private String eventsServiceUrl;
+
     private final WebClient webClient = WebClient.create();
     private final Random random = new Random();
 
@@ -60,6 +63,36 @@ public class ProxyController {
                 targetUrl = moviesServiceUrl + "/api/movies";
             }
         }
+        return webClient.post()
+                .uri(targetUrl)
+                .bodyValue(body)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
+    @PostMapping("/events/movie")
+    public Mono<ResponseEntity<String>> proxyMovieEvent(@RequestBody String body) {
+        String targetUrl = eventsServiceUrl + "/api/events/movie";
+        return webClient.post()
+                .uri(targetUrl)
+                .bodyValue(body)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
+    @PostMapping("/events/user")
+    public Mono<ResponseEntity<String>> proxyUserEvent(@RequestBody String body) {
+        String targetUrl = eventsServiceUrl + "/api/events/user";
+        return webClient.post()
+                .uri(targetUrl)
+                .bodyValue(body)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
+    @PostMapping("/events/payment")
+    public Mono<ResponseEntity<String>> proxyPaymentEvent(@RequestBody String body) {
+        String targetUrl = eventsServiceUrl + "/api/events/payment";
         return webClient.post()
                 .uri(targetUrl)
                 .bodyValue(body)
