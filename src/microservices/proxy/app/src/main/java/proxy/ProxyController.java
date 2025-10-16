@@ -73,6 +73,7 @@ public class ProxyController {
     @PostMapping("/events/movie")
     public Mono<ResponseEntity<String>> proxyMovieEvent(@RequestBody String body) {
         String targetUrl = eventsServiceUrl + "/api/events/movie";
+        System.out.println("Proxying to: " + targetUrl);
         return webClient.post()
                 .uri(targetUrl)
                 .bodyValue(body)
@@ -83,6 +84,7 @@ public class ProxyController {
     @PostMapping("/events/user")
     public Mono<ResponseEntity<String>> proxyUserEvent(@RequestBody String body) {
         String targetUrl = eventsServiceUrl + "/api/events/user";
+        System.out.println("Proxying to: " + targetUrl);
         return webClient.post()
                 .uri(targetUrl)
                 .bodyValue(body)
@@ -93,6 +95,7 @@ public class ProxyController {
     @PostMapping("/events/payment")
     public Mono<ResponseEntity<String>> proxyPaymentEvent(@RequestBody String body) {
         String targetUrl = eventsServiceUrl + "/api/events/payment";
+        System.out.println("Proxying to: " + targetUrl);
         return webClient.post()
                 .uri(targetUrl)
                 .bodyValue(body)
