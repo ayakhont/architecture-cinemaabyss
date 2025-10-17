@@ -18,6 +18,12 @@ def deserialize(data):
         logger.error(f"Deserialization error: {e}")
         return None
 
+def send_event(topic, event):
+    producer = EventProducer()
+    result = producer.send_event(topic, event)
+    producer.close()
+    return result
+
 
 class EventProducer:
     def __init__(self, bootstrap_servers=KAFKA_BOOTSTRAP_SERVER):
@@ -29,12 +35,13 @@ class EventProducer:
 
     def send_event(self, topic, event):
         try:
+            print(f"Event sending to {topic}: {event}")
             future = self.producer.send(topic, event)
             result = future.get(timeout=10)
-            logger.info(f"Event sent to {topic}: {event}")
+            print(f"Event sent to {topic}: {event}")
             return result
         except KafkaError as e:
-            logger.error(f"Failed to send event to {topic}: {e}")
+            print(f"Failed to send event to {topic}: {e}")
             return None
 
     def close(self):

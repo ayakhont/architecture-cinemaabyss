@@ -24,7 +24,7 @@ def deserialize(data):
     try:
         return json.loads(data.decode('utf-8'))
     except (json.JSONDecodeError, AttributeError) as e:
-        logger.error(f"Deserialization error: {e}")
+        print(f"Deserialization error: {e}")
         return None
 
 class EventConsumer:
@@ -40,20 +40,20 @@ class EventConsumer:
 
     def subscribe(self, topics):
         self.consumer.subscribe(topics)
-        logger.info(f"Subscribed to topics: {topics}")
+        print(f"Subscribed to topics: {topics}")
 
     def consume_events(self):
         while True:
             try:
                 messages = self.consumer.poll(timeout_ms=1000)
                 for tp, msgs in messages.items():
-                    logger.info(f"Received {len(msgs)} messages from topic partition {tp}")
+                    print(f"Received {len(msgs)} messages from topic partition {tp}")
                     for message in msgs:
-                        logger.info(f"Received event from {message.topic}: "
+                        print(f"Received event from {message.topic}: "
                                     f"key={message.key} value={message.value} offset={message.offset}")
             except KafkaError as e:
-                logger.error(f"Error consuming events: {e}")
-                logger.error(traceback.format_exc())
+                print(f"Error consuming events: {e}")
+                print(traceback.format_exc())
 
     def close(self):
         self.consumer.commit()
