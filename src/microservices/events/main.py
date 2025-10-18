@@ -22,7 +22,7 @@ PAYMENT_TOPIC = "payment-events"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    sleep(3.0) # Wait for Kafka to be ready
+    sleep(5.0) # Wait for Kafka to be ready
     print("Starting background consumer processes...")
     process1 = Process(target=run_consumer, daemon=True)
     process2 = Process(target=run_consumer, daemon=True)
@@ -55,9 +55,10 @@ app = FastAPI(lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.middleware("http")(catch_exceptions_middleware)
 
-app.get("/api/events/health", tags=["Health"], summary="Health check endpoint")
+@app.get("/api/events/health", tags=["Health"], summary="Health check endpoint")
 def health_check():
-    return {"status": "ok"}
+    message = f"Event service is healthy"
+    return Response(f"{message}", status_code=200)
 
 @app.post("/api/events/movie")
 def create_movie_event(request: MovieEventRequest):
