@@ -70,6 +70,36 @@ public class ProxyController {
                 .toEntity(String.class);
     }
 
+    @PostMapping("/users")
+    public Mono<ResponseEntity<String>> proxyUsersPost(@RequestBody String body) {
+        String targetUrl = monolithUrl + "/api/users";
+        return webClient.post()
+                .uri(targetUrl)
+                .bodyValue(body)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
+    @PostMapping("/payments")
+    public Mono<ResponseEntity<String>> proxyPaymentsPost(@RequestBody String body) {
+        String targetUrl = monolithUrl + "/api/payments";
+        return webClient.post()
+                .uri(targetUrl)
+                .bodyValue(body)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
+    @PostMapping("/subscriptions")
+    public Mono<ResponseEntity<String>> proxySubscriptionsPost(@RequestBody String body) {
+        String targetUrl = monolithUrl + "/api/subscriptions";
+        return webClient.post()
+                .uri(targetUrl)
+                .bodyValue(body)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
     @GetMapping("/events/health")
     public Mono<ResponseEntity<String>> healthEventsCheck() {
         String targetUrl = eventsServiceUrl + "/api/events/health";
