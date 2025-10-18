@@ -80,32 +80,72 @@ public class ProxyController {
     }
 
     @PostMapping("/events/movie")
-    public Mono<ResponseEntity<String>> proxyMovieEvent(@RequestBody String body) {
+    public Mono<ResponseEntity<String>> proxyMovieEvent(org.springframework.http.server.reactive.ServerHttpRequest request,
+                                                        @RequestBody Mono<String> body) {
         String targetUrl = eventsServiceUrl + "/api/events/movie";
+        System.out.println("Proxying to: " + targetUrl);
         return webClient.post()
                 .uri(targetUrl)
-                .bodyValue(body)
+                .headers(httpHeaders -> {
+                    // preserve content-type if present
+                    if (request.getHeaders().getContentType() != null) {
+                        httpHeaders.setContentType(request.getHeaders().getContentType());
+                    }
+                    httpHeaders.addAll(request.getHeaders());
+                    httpHeaders.remove(org.springframework.http.HttpHeaders.HOST);
+                    httpHeaders.remove(org.springframework.http.HttpHeaders.CONTENT_LENGTH);
+                    httpHeaders.remove(org.springframework.http.HttpHeaders.TRANSFER_ENCODING);
+                })
+                .body(org.springframework.web.reactive.function.BodyInserters.fromPublisher(body, String.class))
                 .retrieve()
-                .toEntity(String.class);
-    }
-
-    @PostMapping("/events/user")
-    public Mono<ResponseEntity<String>> proxyUserEvent(@RequestBody String body) {
-        String targetUrl = eventsServiceUrl + "/api/events/user";
-        return webClient.post()
-                .uri(targetUrl)
-                .bodyValue(body)
-                .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                        resp -> resp.bodyToMono(String.class).flatMap(b -> Mono.error(new RuntimeException("Upstream error: " + b))))
                 .toEntity(String.class);
     }
 
     @PostMapping("/events/payment")
-    public Mono<ResponseEntity<String>> proxyPaymentEvent(@RequestBody String body) {
+    public Mono<ResponseEntity<String>> proxyPaymentEvent(org.springframework.http.server.reactive.ServerHttpRequest request,
+                                                          @RequestBody Mono<String> body) {
         String targetUrl = eventsServiceUrl + "/api/events/payment";
+        System.out.println("Proxying to: " + targetUrl);
         return webClient.post()
                 .uri(targetUrl)
-                .bodyValue(body)
+                .headers(httpHeaders -> {
+                    if (request.getHeaders().getContentType() != null) {
+                        httpHeaders.setContentType(request.getHeaders().getContentType());
+                    }
+                    httpHeaders.addAll(request.getHeaders());
+                    httpHeaders.remove(org.springframework.http.HttpHeaders.HOST);
+                    httpHeaders.remove(org.springframework.http.HttpHeaders.CONTENT_LENGTH);
+                    httpHeaders.remove(org.springframework.http.HttpHeaders.TRANSFER_ENCODING);
+                })
+                .body(org.springframework.web.reactive.function.BodyInserters.fromPublisher(body, String.class))
                 .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                        resp -> resp.bodyToMono(String.class).flatMap(b -> Mono.error(new RuntimeException("Upstream error: " + b))))
+                .toEntity(String.class);
+    }
+
+    @PostMapping("/events/user")
+    public Mono<ResponseEntity<String>> proxyUserEvent(org.springframework.http.server.reactive.ServerHttpRequest request,
+                                                       @RequestBody Mono<String> body) {
+        String targetUrl = eventsServiceUrl + "/api/events/user";
+        System.out.println("Proxying to: " + targetUrl);
+        return webClient.post()
+                .uri(targetUrl)
+                .headers(httpHeaders -> {
+                    if (request.getHeaders().getContentType() != null) {
+                        httpHeaders.setContentType(request.getHeaders().getContentType());
+                    }
+                    httpHeaders.addAll(request.getHeaders());
+                    httpHeaders.remove(org.springframework.http.HttpHeaders.HOST);
+                    httpHeaders.remove(org.springframework.http.HttpHeaders.CONTENT_LENGTH);
+                    httpHeaders.remove(org.springframework.http.HttpHeaders.TRANSFER_ENCODING);
+                })
+                .body(org.springframework.web.reactive.function.BodyInserters.fromPublisher(body, String.class))
+                .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                        resp -> resp.bodyToMono(String.class).flatMap(b -> Mono.error(new RuntimeException("Upstream error: " + b))))
                 .toEntity(String.class);
     }
 }
