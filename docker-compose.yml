@@ -99,8 +99,6 @@ services:
     networks:
       - cinemaabyss-network
 
-
-
   # Proxy Service (API Gateway)
   proxy-service:
     build:

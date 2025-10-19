@@ -80,6 +80,15 @@ public class ProxyController {
                 .toEntity(String.class);
     }
 
+    @GetMapping("/users")
+    public Mono<ResponseEntity<String>> proxyUsersGet() {
+        String targetUrl = monolithUrl + "/api/users";
+        return webClient.get()
+                .uri(targetUrl)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
     @PostMapping("/payments")
     public Mono<ResponseEntity<String>> proxyPaymentsPost(@RequestBody String body) {
         String targetUrl = monolithUrl + "/api/payments";
@@ -90,12 +99,30 @@ public class ProxyController {
                 .toEntity(String.class);
     }
 
+    @GetMapping("/payments")
+    public Mono<ResponseEntity<String>> proxyPaymentsGet() {
+        String targetUrl = monolithUrl + "/api/payments";
+        return webClient.get()
+                .uri(targetUrl)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
     @PostMapping("/subscriptions")
     public Mono<ResponseEntity<String>> proxySubscriptionsPost(@RequestBody String body) {
         String targetUrl = monolithUrl + "/api/subscriptions";
         return webClient.post()
                 .uri(targetUrl)
                 .bodyValue(body)
+                .retrieve()
+                .toEntity(String.class);
+    }
+
+    @GetMapping("/subscriptions")
+    public Mono<ResponseEntity<String>> proxySubscriptionsGet() {
+        String targetUrl = monolithUrl + "/api/subscriptions";
+        return webClient.get()
+                .uri(targetUrl)
                 .retrieve()
                 .toEntity(String.class);
     }
