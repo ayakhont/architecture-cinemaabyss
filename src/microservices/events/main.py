@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import uvicorn
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import Response, JSONResponse
 
 from multiprocessing import Process
 from models import MovieEventRequest, UserEventRequest, PaymentEventRequest
@@ -57,29 +57,25 @@ app.middleware("http")(catch_exceptions_middleware)
 
 @app.get("/api/events/health", tags=["Health"], summary="Health check endpoint")
 def health_check():
-    message = f"Event service is healthy"
-    return Response(f"{message}", status_code=200)
+    return JSONResponse(content={"status": True}, status_code=200)
 
 @app.post("/api/events/movie")
 def create_movie_event(request: MovieEventRequest):
     print(f"Received movie event request: {request}")
     send_event(MOVIE_TOPIC, request)
-    message = f"Movie event received"
-    return Response(f"{message}", status_code=200)
+    return JSONResponse(content={"status": "success"}, status_code=201)
 
 @app.post("/api/events/user")
 def create_user_event(request: UserEventRequest):
     print(f"Received user event request: {request}")
     send_event(USER_TOPIC, request)
-    message = f"User event received"
-    return Response(f"{message}", status_code=200)
+    return JSONResponse(content={"status": "success"}, status_code=201)
 
 @app.post("/api/events/payment")
 def create_payment_event(request: PaymentEventRequest):
     print(f"Received payment event request: {request}")
     send_event(PAYMENT_TOPIC, request)
-    message = f"Payment event received"
-    return Response(f"{message}", status_code=200)
+    return JSONResponse(content={"status": "success"}, status_code=201)
 
 
 def main():

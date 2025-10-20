@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional, Literal, List
+from typing import Optional, List
 
 
 class MovieEventRequest(BaseModel):
@@ -7,8 +7,8 @@ class MovieEventRequest(BaseModel):
     title: str
     action: str
     user_id: int
-    rating: float
-    genres: List[str]
+    rating: Optional[float] = None
+    genres: Optional[List[str]] = None
     description: Optional[str] = None
 
 class UserEventRequest(BaseModel):
@@ -16,12 +16,12 @@ class UserEventRequest(BaseModel):
     action: str
     timestamp: str
     username: str
-    email: EmailStr
+    email: Optional[EmailStr] = None
 
 class PaymentEventRequest(BaseModel):
     payment_id: int
     user_id: int
     amount: float
-    status: Literal["completed", "pending", "failed"]
+    status: str
     timestamp: str
     method_type: str
