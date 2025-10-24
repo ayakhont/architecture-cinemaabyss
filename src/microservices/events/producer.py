@@ -13,7 +13,7 @@ KAFKA_BOOTSTRAP_SERVER = os.getenv('KAFKA_BROKERS', 'kafka:9092')
 
 def serialize(data):
     try:
-        return data.model_dump(mode='json')
+        return data.model_dump().encode('utf-8')
     except (json.JSONDecodeError, AttributeError) as e:
         logger.error(f"Serialization error: {e}")
         return None
