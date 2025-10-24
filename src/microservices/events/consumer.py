@@ -20,20 +20,18 @@ def run_consumer():
     consumer.subscribe([MOVIE_TOPIC, USER_TOPIC, PAYMENT_TOPIC])
     consumer.consume_events()
 
-def deserialize(data):
-    try:
-        return json.loads(data.decode('utf-8'))
-    except (json.JSONDecodeError, AttributeError) as e:
-        print(f"Deserialization error: {e}")
-        return None
+# def deserialize(data):
+#     try:
+#         return json.loads(data)
+#     except (json.JSONDecodeError, AttributeError) as e:
+#         print(f"Deserialization error: {e}")
+#         return None
 
 class EventConsumer:
     def __init__(self, bootstrap_servers=KAFKA_BOOTSTRAP_SERVER, group_id='event-consumers'):
         self.consumer = KafkaConsumer(
             bootstrap_servers=bootstrap_servers,
             group_id=group_id,
-            key_deserializer=deserialize,
-            value_deserializer=deserialize,
             auto_offset_reset='earliest',
             enable_auto_commit=True
         )
