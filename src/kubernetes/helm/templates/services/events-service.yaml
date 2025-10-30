@@ -72,5 +72,6 @@ spec:
   ports:
   - port: {{ .Values.eventsService.service.port }}
     targetPort: {{ .Values.eventsService.service.targetPort }}
+    protocol: TCP
   type: {{ .Values.eventsService.service.type }}
 {{- end }}

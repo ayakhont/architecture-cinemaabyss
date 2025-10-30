@@ -72,5 +72,6 @@ spec:
   ports:
   - port: {{ .Values.moviesService.service.port }}
     targetPort: {{ .Values.moviesService.service.targetPort }}
+    protocol: TCP
   type: {{ .Values.moviesService.service.type }}
 {{- end }}

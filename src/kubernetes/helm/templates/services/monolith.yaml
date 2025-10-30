@@ -72,5 +72,6 @@ spec:
   ports:
   - port: {{ .Values.monolith.service.port }}
     targetPort: {{ .Values.monolith.service.targetPort }}
+    protocol: TCP
   type: {{ .Values.monolith.service.type }}
 {{- end }}

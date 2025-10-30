@@ -15,7 +15,7 @@ System_Boundary(platform, "Cinema abyss") {
     Container(subscriptionService, "Subscription Service", "Сервис подписок")
     ContainerDb(subscriptionDb, "Subscription Database", "PostgreSQL", "БД подписок")
     Container(eventsService, "Events Service", "Сервис событий и уведомлений")
-    ContainerQueue(messageQueue, "Message Queue", "Kafka", "Очередь сообщений для асинхронной коммуникации между сервисами")
+    ContainerQueue(messageQueue, "Message Queue", "Kafka + Zookeeper", "Брокер и очередь сообщений для асинхронной коммуникации между сервисами")
     Container(moviesService, "Movie Service", "Сервис управления фильмами и сериалами")
     ContainerDb(movieDb, "Movie Database", "PostgreSQL", "БД фильмов и сериалов")
 
@@ -25,8 +25,6 @@ System_Boundary(platform, "Cinema abyss") {
     Container(grafana, "Grafana", "Платформа аналитики и визуализации", "Визуализация метрик и создание дашбордов")
 }
 Container_Ext(payment, "Payment GateWay", "API (External)", "Обработка запросов для операций оплаты")
-Container_Ext(mediaStreamingServer, "Media Streaming Server", "Сервер потокового аудио и видео", "Сервер потокового видео")
-
 
 Rel(client, clientFrontend, "Просмотр и управление")
 Rel(client, clientMobile, "Просмотр и управление")
@@ -39,12 +37,18 @@ Rel(subscriptionService, subscriptionDb, "Чтение и запись данн�
 Rel(eventsService, messageQueue, "Публикация событий", "Kafka")
 Rel(moviesService, movieDb, "Чтение и запись данных о фильмах и сериалах", "JDBC")
 
-Rel(messageQueue, subscriptionService, "Отправка уведомлений о событиях", "Kafka")
+Rel(messageQueue, moviesService, "Отправка событий", "Kafka")
+Rel(messageQueue, userManagement, "Отправка событий", "Kafka")
+Rel(messageQueue, paymentService, "Отправка событий", "Kafka")
+
 
 Rel_R(apiGateway, paymentService, "Оплата", "HTTP")
+Rel_R(apiGateway, "eventsService", "Асинхронная обработка событий", "HTTP/gRPC")
 Rel_L(apiGateway, userManagement, "Управление и информация о пользователях" ,"HTTP")
 Rel(apiGateway, subscriptionService, "Управление подписками", "HTTP")
 Rel(apiGateway, moviesService, "Управление фильмами и сериалами", "HTTP")
+Rel(apiGateway, prometheus, "Сбор метрик", "HTTP")
+Rel(grafana, prometheus, "Запрос метрик для визуализации", "HTTP")
 
 Rel_R(paymentService, payment, "Инициирует оплату через API", "HTTP")
 Rel(paymentService, paymentDb, "Чтение и запись данных о платежах", "JDBC")
